@@ -43,6 +43,10 @@ public class CmdPtmProphet extends CmdBase {
       Seq.of(cmdLineOpts.split(" "))
           .map(String::trim).filter(StringUtils::isNotBlank).forEach(cmd::add);
       cmd.add(pepxml.toString());
+
+      final ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(lcms.getPath().toFile()); // PTM Prophet is run from the directory where the RAW is
+      pbis.add(new PbiBuilder().setPb(pb).create());
     }
 
     isConfigured = true;
