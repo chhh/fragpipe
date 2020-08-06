@@ -36,6 +36,7 @@ import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.pepproph.PepProphPanel;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
+import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdPanel;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
@@ -742,7 +743,7 @@ public class FragpipeRun {
     final boolean isRunPeptideProphet = pepProphPanel.isRun();
     final boolean isCombinedPepxml = pepProphPanel.isCombinePepxml();
 
-    CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
+    final CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
 
     addCheck.accept(() -> {
       if (cmdPeptideProphet.isRun()) {
@@ -775,6 +776,15 @@ public class FragpipeRun {
         }
       }
 
+      return true;
+    });
+
+    final PtmProphetPanel panelPtmProphet = Fragpipe.getStickyStrict(PtmProphetPanel.class);
+    final CmdPtmProphet cmdPtmProphet = new CmdPtmProphet(panelPtmProphet.isRun(), wd);
+    addConfig.accept(cmdPtmProphet, () -> {
+      if (panelPtmProphet.isRun()) {
+        return cmdPtmProphet.configure();
+      }
       return true;
     });
 
