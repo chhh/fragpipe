@@ -74,9 +74,9 @@ public class RewritePepxml {
             sink.write(buf, buf.size());
           } else { // found
             ++foundCount;
-            if (foundCount > 1) {
-              throw new IllegalStateException("More than one element to be replaced found. Don't know how to handle this situation.");
-            }
+//            if (foundCount > 1) {
+//              throw new IllegalStateException("More than one element to be replaced found. Don't know how to handle this situation.");
+//            }
             long offset = fr.bytesRead - bytesLo.length;
             if (!find(peek, overlap, bytesHi, fr)) {
               throw new IllegalStateException("Didn't find closing tag bracket with the search limit");
@@ -109,7 +109,7 @@ public class RewritePepxml {
               String ext = StringUtils.afterLastDot(correctRaw.getFileName().toString());
               rewrite = String.format(
                   "<msms_run_summary base_name=\"%s\" raw_data_type=\"%s\" raw_data=\"%s\">",
-                  correctRaw.toString(), ext, ext);
+                  StringUtils.upToLastDot(correctRaw.toString()), ext, ext);
 
             } else {
               rewrite = re.matcher(originalMsmsRunSummary).replaceFirst(String.format("base_name=\"%s\"", origPathFn));
@@ -132,7 +132,9 @@ public class RewritePepxml {
 
     // rewriting done
     // delete original, rename temp file
+    log.debug("Deleting file: {}", pepxml);
     Files.deleteIfExists(pepxml);
+    log.debug("Moving file: [{}] -> [{}]", temp, pepxml);
     Files.move(temp, pepxml);
 
   }
