@@ -107,4 +107,8 @@ public class PtmProphetPanel extends JPanelBase {
   public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
+
+  public String getCmdLineOpts() {
+    return uiTextCmd.getNonGhostText();
+  }
 }

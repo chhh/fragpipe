@@ -765,25 +765,22 @@ public class FragpipeRun {
       sharedPepxmlFiles.clear();
       sharedPepxmlFiles.putAll(pepProphOutputs);
 
-      if (cmdPeptideProphet.isRun()) {
-        // peptide prophet is run, so we run adjustments of the pepxml files.
-        List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(sharedPepxmlFiles)
-            .flatMap(t2 -> Seq.seq(t2.v2).map(pepxml -> new Tuple2<>(t2.v1, pepxml)))
-            .distinct(t2 -> t2.v2)
-            .toList();
-        for (Tuple2<InputLcmsFile, Path> kv : lcmsToPepxml) {
-          // TODO: process builder to to call: FixPepProphLcmsPath.fixPathInplace(kv.v2, kv.v1, wd);
-        }
-      }
-
       return true;
     });
 
     final PtmProphetPanel panelPtmProphet = Fragpipe.getStickyStrict(PtmProphetPanel.class);
     final CmdPtmProphet cmdPtmProphet = new CmdPtmProphet(panelPtmProphet.isRun(), wd);
     addConfig.accept(cmdPtmProphet, () -> {
+
+      // peptide prophet is run, so we run adjustments of the pepxml files.
+      List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(sharedPepxmlFiles)
+          .flatMap(t2 -> Seq.seq(t2.v2).map(pepxml -> new Tuple2<>(t2.v1, pepxml)))
+          .distinct(t2 -> t2.v2)
+          .toList();
+
       if (panelPtmProphet.isRun()) {
-        return cmdPtmProphet.configure();
+        return cmdPtmProphet.configure(usePhi, threads, panelPtmProphet.getCmdLineOpts(),
+            lcmsToPepxml);
       }
       return true;
     });
@@ -1116,7 +1113,8 @@ public class FragpipeRun {
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
-    addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideProphet);
+    addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideProphet);
+    addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideProphet, cmdPtmProphet);
     addToGraph(graphOrder, cmdPhilosopherDbAnnotate, DIRECTION.IN, cmdProteinProphet);
     addToGraph(graphOrder, cmdPhilosopherFilter, DIRECTION.IN, cmdPhilosopherDbAnnotate, cmdProteinProphet);
     addToGraph(graphOrder, cmdFreequant, DIRECTION.IN, cmdPhilosopherFilter);
